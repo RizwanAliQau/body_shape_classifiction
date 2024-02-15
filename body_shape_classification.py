@@ -5,7 +5,7 @@ import cv2
 import os
 wandb.disabled = True
 
-select = 'predict'
+select = 'camera'
 
 
 if __name__ == '__main__':
@@ -64,10 +64,13 @@ if __name__ == '__main__':
             ret, frame = vid.read() 
             # Run YOLOv8 inference on the frame
             results = model.predict(frame) 
-
+            for result in results:
+                boxes = result.boxes  # Boxes object for bounding box outputs
+            if boxes.cls!=0:
+                annotated_frame =   result_to_condition(boxes.cls[0],annotated_frame)
             # Visualize the results on the frame
             annotated_frame = results[0].plot()
-
+            
             # Display the annotated frame
             cv2.imshow("YOLOv8 Inference", annotated_frame)
 
