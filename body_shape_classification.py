@@ -1,9 +1,8 @@
 import ultralytics 
 from ultralytics import YOLO
-import wandb
 import cv2
 import os
-wandb.disabled = True
+from utils import * 
 
 select = 'camera'
 
@@ -63,14 +62,16 @@ if __name__ == '__main__':
             # by frame 
             ret, frame = vid.read() 
             # Run YOLOv8 inference on the frame
-            results = model.predict(frame) 
+            results = model.predict(frame,conf=0.3) 
             for result in results:
                 boxes = result.boxes  # Boxes object for bounding box outputs
-            if boxes.cls!=0:
-                annotated_frame =   result_to_condition(boxes.cls[0],annotated_frame)
+            
             # Visualize the results on the frame
             annotated_frame = results[0].plot()
             
+            if boxes.cls.detach().cpu().numpy().size>0:
+                annotated_frame =   result_to_condition(int(boxes.cls[0].item()),annotated_frame)
+                
             # Display the annotated frame
             cv2.imshow("YOLOv8 Inference", annotated_frame)
 
@@ -90,11 +91,3 @@ if __name__ == '__main__':
     else:
         raise NotImplementedError("Selection was wrong!") 
         
-
-
-
-
-
-
-
-
